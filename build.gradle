@@ -1,0 +1,69 @@
+group 'co.com.bc.reto'
+version '1.0.1'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:2.1.7")
+        classpath "net.serenity-bdd:serenity-single-page-report:2.1.7"
+    }
+}
+
+ext {
+    serenityVersion = '2.0.39'
+    serenityCucumberVersion = '1.0.9'
+    cucumberVersion = '4.2.0'
+    lombok = '1.18.12'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "io.cucumber:cucumber-core:4.2.0"
+
+    }
+}
+
+dependencies {
+    implementation "net.serenity-bdd:serenity-core:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-cucumber4:${serenityCucumberVersion}"
+    implementation "io.cucumber:cucumber-core:${cucumberVersion}"
+    implementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+    implementation "org.projectlombok:lombok:${lombok}"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:${serenityVersion}"
+    implementation group: 'net.serenity-bdd', name: 'serenity-ensure', version: '2.1.4'
+    annotationProcessor "org.projectlombok:lombok:${lombok}"
+    testImplementation("io.github.bonigarcia:webdrivermanager:4.3.1")
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    testLogging.showStandardStreams = true
+    testLogging.showStackTraces = true
+    testLogging.exceptionFormat = 'full'
+    systemProperties System.getProperties()
+
+}
+
+serenity {
+    reports = ["single-page-html"]
+}
+
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
